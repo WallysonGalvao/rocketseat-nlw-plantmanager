@@ -53,6 +53,19 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 
 ## :notebook: Executando
 
+### Backend
+```bash
+# Instale a lib json-server globalmente
+$ npm install -g json-server 
+
+# O seguinte comando retorna o IP da máquina (Macbook)
+$ ipconfig getifaddr en0  
+
+# Dentro da pasta do projeto, execute o seguinte comando, é o responsável por sunir o servidor
+$ json-server ./src/services/server.json --host <IP_ADDRESS> --port 3333 --delay 700
+```
+
+### Frontend
 ```bash
 # Clone este repositório
 $ git clone https://github.com/WallysonGalvao/rocketseat-nlw-plantmanager.git
