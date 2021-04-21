@@ -50,6 +50,9 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 - [Typescript](https://www.typescriptlang.org/)
 - [React Native](https://reactnative.dev/)
 - [Expo](https://expo.io/)
+- [Lottie](https://lottiefiles.com/)
+
+\* Para mais detalhes, veja o **[package.json](./package.json)**
 
 ## :notebook: Executando
 
