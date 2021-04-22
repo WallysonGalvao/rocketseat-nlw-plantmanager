@@ -6,9 +6,10 @@
     "paths": {
       "assets": ["./src/assets"],
       "components": ["./src/components"],
+      "libs": ["./src/libs"],
       "screens": ["./src/screens"],
-      "styles": ["./styles"],
-      "services": ["./services"]
+      "services": ["./services"],
+      "styles": ["./styles"]
     }
   }
 }

@@ -9,8 +9,10 @@ import {
   TextInput,
   View,
   TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/core";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { Button } from "components/Button";
 
@@ -33,14 +35,30 @@ export function UserIdentification() {
     setIsFocused(true);
   }, []);
 
-  const handleInputChange = useCallback((value: string) => {
-    setIsFilled(!!value);
-    setName(value);
-  }, []);
+  const handleInputChange = useCallback(
+    (value: string) => {
+      setIsFilled(!!value);
+      setName(value);
+    },
+    [setIsFilled, setName]
+  );
 
-  const handleSubmit = useCallback(() => {
-    navigate("Confirmation");
-  }, []);
+  const handleSubmit = useCallback(async () => {
+    if (!name) return Alert.alert("Me diz como chamar você 😥");
+    try {
+      await AsyncStorage.setItem("@plantmanager:user", "Wallyson");
+      navigate("Confirmation", {
+        title: "Prontinho",
+        subTitle:
+          "Agora vamos começar a cuidar das suas plantinhas com muito cuidado.",
+        buttonTitle: "Começar",
+        icon: "smile",
+        nextScreen: "PlantSelect",
+      });
+    } catch (error) {
+      Alert.alert("Não foi possível salvar o seu nome. 😥");
+    }
+  }, [name]);
 
   return (
     <SafeAreaView style={styles.container}>

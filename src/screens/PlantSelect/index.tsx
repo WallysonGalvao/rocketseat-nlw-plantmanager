@@ -6,10 +6,12 @@ import {
   FlatList,
   ActivityIndicator,
 } from "react-native";
+import { useNavigation } from "@react-navigation/core";
+import { PlantProps } from "libs/storage";
 
 import { Header } from "components/Header";
 import { EnvironmentButton } from "components/EnvironmentButton";
-import { PlantCardPrimary, PlantProps } from "components/PlantCardPrimary";
+import { PlantCardPrimary } from "components/PlantCardPrimary";
 import { Load } from "components/Load";
 
 import colors from "styles/colors";
@@ -22,6 +24,8 @@ interface EnvironmentProps {
 }
 
 export function PlantSelect() {
+  const { navigate } = useNavigation();
+
   const [environments, setEnvironments] = useState<EnvironmentProps[]>([]);
   const [environmentSelected, setEnvironmentSelected] = useState("all");
   const [plants, setPlants] = useState<PlantProps[]>([]);
@@ -29,7 +33,6 @@ export function PlantSelect() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [loadedAll, setLoadedAll] = useState(false);
 
   const keyExtractorEnvironments = (item: EnvironmentProps) => item.key;
 
@@ -43,10 +46,16 @@ export function PlantSelect() {
     );
   };
 
-  const keyExtractorPlants = (item: PlantProps) => item.id;
+  const handlePlantSelect = useCallback((plant: PlantProps) => {
+    navigate("PlantSave", { plant });
+  }, []);
+
+  const keyExtractorPlants = (item: PlantProps) => String(item.id);
 
   const renderItemPlants = ({ item }: { item: PlantProps }) => {
-    return <PlantCardPrimary data={item} />;
+    return (
+      <PlantCardPrimary data={item} onPress={() => handlePlantSelect(item)} />
+    );
   };
 
   const renderFooterPlants = () => {
@@ -123,7 +132,7 @@ export function PlantSelect() {
         <Header />
 
         <Text style={styles.title}>Em qual ambiente</Text>
-        <Text style={styles.subTitle}>Você quer colocar sua planta?</Text>
+        <Text style={styles.subTitle}>você quer colocar sua planta?</Text>
       </View>
       <View>
         <FlatList
