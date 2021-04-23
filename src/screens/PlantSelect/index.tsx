@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -46,9 +46,9 @@ export function PlantSelect() {
     );
   };
 
-  const handlePlantSelect = useCallback((plant: PlantProps) => {
+  const handlePlantSelect = (plant: PlantProps) => {
     navigate("PlantSave", { plant });
-  }, []);
+  };
 
   const keyExtractorPlants = (item: PlantProps) => String(item.id);
 
@@ -62,22 +62,22 @@ export function PlantSelect() {
     return loadingMore ? <ActivityIndicator color={colors.green} /> : <></>;
   };
 
-  const handleEnvironmentSelected = useCallback(
-    (environment: string) => {
-      setEnvironmentSelected(environment);
+  const handleEnvironmentSelected = (environment: string) => {
+    setEnvironmentSelected(environment);
 
-      if (environment === "all") return setFilteredPlants(plants);
+    if (environment === "all") {
+      setFilteredPlants(plants);
+      return;
+    }
 
-      const filtered = plants.filter((plant) =>
-        plant.environments.includes(environment)
-      );
+    const filtered = plants.filter((plant) =>
+      plant.environments.includes(environment)
+    );
 
-      setFilteredPlants(filtered);
-    },
-    [setEnvironmentSelected, setFilteredPlants]
-  );
+    setFilteredPlants(filtered);
+  };
 
-  const fetchEnvironment = useCallback(async () => {
+  const fetchEnvironment = async () => {
     try {
       const { data } = await api.get(
         "plants_environments?_sort=title&_order=asc"
@@ -87,10 +87,11 @@ export function PlantSelect() {
     } catch (error) {
       console.error(error);
     }
-  }, []);
+  };
 
-  const fetchPlants = useCallback(async () => {
+  const fetchPlants = async () => {
     try {
+      console.log({ page });
       const url = `plants?_sort=name&_order=asc&_page=${page}&_limit=8`;
       const { data } = await api.get(url);
 
@@ -110,14 +111,14 @@ export function PlantSelect() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
-  const handleFetchMore = useCallback((distance: number) => {
+  const handleFetchMore = (distance: number) => {
     if (distance < 1) return;
     setLoadingMore(true);
     setPage((prevState) => prevState + 1);
     fetchPlants();
-  }, []);
+  };
 
   useEffect(() => {
     fetchEnvironment();
