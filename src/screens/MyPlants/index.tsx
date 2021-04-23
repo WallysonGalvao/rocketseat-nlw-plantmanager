@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { StyleSheet, Text, View, Image, FlatList } from "react-native";
+import { StyleSheet, Text, View, Image, FlatList, Alert } from "react-native";
 import { formatDistance } from "date-fns";
 import { pt } from "date-fns/locale";
 
+import { loadPlant, removePlant, PlantProps } from "libs/storage";
+
 import { Header } from "components/Header";
 import { PlantCardSecondary } from "components/PlantCardSecondary";
-
-import { loadPlant, PlantProps } from "libs/storage";
+import { Load } from "components/Load";
 
 import colors from "styles/colors";
 import fonts from "styles/fonts";
@@ -18,10 +19,30 @@ export function MyPlants() {
   const [loading, setLoading] = useState(true);
   const [nextWaterd, setNextWatered] = useState<string>();
 
+  const removePlantById = useCallback(async (plant: PlantProps) => {
+    try {
+      await removePlant(plant.id);
+      setMyPlants((prevState) =>
+        prevState.filter((item) => item.id !== plant.id)
+      );
+    } catch (error) {
+      Alert.alert("Não foi possível remover! 😥");
+    }
+  }, []);
+
+  const handleRemove = useCallback((plant: PlantProps) => {
+    Alert.alert("Remover", `Deseja remover a ${plant.name}?`, [
+      { text: "Não 🙏", style: "cancel" },
+      { text: "Sim 😥", onPress: () => removePlantById(plant) },
+    ]);
+  }, []);
+
   const keyExtractorPlants = (item: PlantProps) => String(item.id);
 
   const renderItemPlants = ({ item }: { item: PlantProps }) => {
-    return <PlantCardSecondary data={item} />;
+    return (
+      <PlantCardSecondary data={item} handleRemove={() => handleRemove(item)} />
+    );
   };
 
   const loadStorageData = useCallback(async () => {
@@ -44,6 +65,8 @@ export function MyPlants() {
   useEffect(() => {
     loadStorageData();
   }, []);
+
+  if (loading) return <Load />;
 
   return (
     <View style={styles.container}>

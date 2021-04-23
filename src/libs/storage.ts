@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
 import { format } from "date-fns";
 
 const STORAGE_PLANTS = "@plantmanager:plants";
@@ -21,15 +22,47 @@ export interface PlantProps {
 interface StoragePlantProps {
   [id: string]: {
     data: PlantProps;
+    noificationId: string;
   };
 }
 
 export async function savePlant(plant: PlantProps): Promise<void> {
   try {
+    const nextTime = new Date(plant.dateTimeNotification);
+    const now = new Date();
+
+    const { times, repeat_every } = plant.frequency;
+    if (repeat_every === "week") {
+      const interval = Math.trunc(7 / times);
+      nextTime.setDate(now.getDate() + interval);
+    } else {
+      nextTime.setDate(nextTime.getDate() + 1);
+    }
+
+    const seconds = Math.abs(
+      Math.ceil(now.getTime() - nextTime.getTime()) / 1000
+    );
+
+    const noificationId = await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Heeey, 🌱",
+        body: `Está na hora de cuidar da sua ${plant.name}`,
+        sound: true,
+        priority: Notifications.AndroidNotificationPriority.HIGH,
+        data: {
+          plant,
+        },
+      },
+      trigger: {
+        seconds: seconds < 60 ? 60 : seconds,
+        repeats: true,
+      },
+    });
+
     const data = await AsyncStorage.getItem(STORAGE_PLANTS);
     const oldPlants = data ? (JSON.parse(data) as StoragePlantProps) : {};
 
-    const newPlant = { [plant.id]: { data: plant } };
+    const newPlant = { [plant.id]: { data: plant, noificationId } };
 
     await AsyncStorage.setItem(
       STORAGE_PLANTS,
@@ -64,6 +97,20 @@ export async function loadPlant(): Promise<PlantProps[]> {
       );
 
     return plantsSorted;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+export async function removePlant(id: string): Promise<void> {
+  try {
+    const data = await AsyncStorage.getItem(STORAGE_PLANTS);
+    const plants = data ? (JSON.parse(data) as StoragePlantProps) : {};
+    await Notifications.cancelScheduledNotificationAsync(
+      plants[id].noificationId
+    );
+    delete plants[id];
+    await AsyncStorage.setItem(STORAGE_PLANTS, JSON.stringify(plants));
   } catch (error) {
     throw new Error(error);
   }

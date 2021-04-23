@@ -46,7 +46,7 @@ export function UserIdentification() {
   const handleSubmit = useCallback(async () => {
     if (!name) return Alert.alert("Me diz como chamar você 😥");
     try {
-      await AsyncStorage.setItem("@plantmanager:user", "Wallyson");
+      await AsyncStorage.setItem("@plantmanager:user", name);
       navigate("Confirmation", {
         title: "Prontinho",
         subTitle:
